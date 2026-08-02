@@ -1,0 +1,546 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CP Plus V48A — External Wi-Fi Antenna Range Mod</title>
+<meta name="description" content="A blueprint-style DIY guide to extending the Wi-Fi range of a CP Plus V48A CCTV camera by adding an external 2.4 GHz RP-SMA antenna.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#f0e7d2;
+    --paper-2:#e9dfc4;
+    --paper-3:#e3d8ba;
+    --ink:#22384a;
+    --ink-2:#33526b;
+    --ink-soft:rgba(34,56,74,.66);
+    --line:rgba(34,56,74,.20);
+    --line-strong:rgba(34,56,74,.45);
+    --accent:#b5462c;
+    --accent-soft:rgba(181,70,44,.12);
+    --mono:'Space Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --disp:'Oswald',system-ui,sans-serif;
+    --body:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    font-family:var(--body);
+    color:var(--ink);
+    background-color:var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px),
+      linear-gradient(rgba(34,56,74,.09) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(34,56,74,.09) 1px,transparent 1px);
+    background-size:26px 26px,26px 26px,130px 130px,130px 130px;
+    line-height:1.6;
+  }
+
+  .sheet{
+    max-width:1040px;
+    margin:26px auto;
+    background:rgba(240,231,210,.86);
+    border:1.5px solid var(--ink);
+    box-shadow:0 2px 0 var(--line-strong),0 18px 40px rgba(34,56,74,.14);
+    position:relative;
+    padding:clamp(20px,4.5vw,52px);
+  }
+  .sheet::before{
+    content:"";position:absolute;inset:8px;border:1px solid var(--line-strong);pointer-events:none;
+  }
+  .tick{position:absolute;width:14px;height:14px;border:1.5px solid var(--ink);z-index:2}
+  .tick.tl{top:-1.5px;left:-1.5px;border-right:0;border-bottom:0}
+  .tick.tr{top:-1.5px;right:-1.5px;border-left:0;border-bottom:0}
+  .tick.bl{bottom:-1.5px;left:-1.5px;border-right:0;border-top:0}
+  .tick.br{bottom:-1.5px;right:-1.5px;border-left:0;border-top:0}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--ink-soft);display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .eyebrow .wifi{width:22px;height:22px;flex:0 0 auto}
+  .eyebrow .rule{flex:1;height:1px;background:var(--line-strong);min-width:30px}
+  h1{
+    font-family:var(--disp);font-weight:600;text-transform:uppercase;
+    letter-spacing:.02em;line-height:.98;
+    font-size:clamp(34px,7.5vw,74px);margin:.32em 0 .1em;
+  }
+  h1 .thin{font-weight:300;color:var(--ink-2);display:block;font-size:.42em;letter-spacing:.16em;margin-top:.5em}
+  .lede{max-width:60ch;color:var(--ink-2);font-size:clamp(15px,2.2vw,18px)}
+  .lede b{color:var(--accent);font-weight:600}
+
+  .titleblock{
+    margin-top:30px;border:1.5px solid var(--ink);
+    display:grid;grid-template-columns:repeat(6,1fr);
+    font-family:var(--mono);
+  }
+  .tb{padding:9px 12px;border-right:1px solid var(--line-strong);border-bottom:1px solid var(--line-strong)}
+  .tb:nth-child(6n){border-right:0}
+  .tb .k{font-size:9.5px;letter-spacing:.14em;color:var(--ink-soft);text-transform:uppercase}
+  .tb .v{font-size:14px;font-weight:700;margin-top:3px;color:var(--ink)}
+  @media(max-width:720px){
+    .titleblock{grid-template-columns:repeat(2,1fr)}
+    .tb:nth-child(6n){border-right:1px solid var(--line-strong)}
+    .tb:nth-child(2n){border-right:0}
+  }
+
+  .caution{
+    margin:34px 0 6px;border:2px solid var(--accent);background:var(--accent-soft);
+    padding:16px 18px;display:flex;gap:16px;align-items:flex-start;position:relative;
+  }
+  .caution .badge{
+    font-family:var(--disp);font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--accent);border:2px solid var(--accent);padding:5px 12px;font-size:15px;
+    transform:rotate(-3deg);white-space:nowrap;flex:0 0 auto;margin-top:2px;
+  }
+  .caution ul{margin:0;padding-left:18px;font-size:14.5px;color:var(--ink)}
+  .caution li{margin:3px 0}
+  @media(max-width:560px){.caution{flex-direction:column;gap:10px}}
+
+  section{margin-top:52px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1.5px solid var(--ink);padding-bottom:8px;margin-bottom:22px}
+  .sec-no{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.1em}
+  .sec-head h2{font-family:var(--disp);font-weight:500;text-transform:uppercase;letter-spacing:.06em;font-size:clamp(20px,3.6vw,28px);margin:0}
+  .sec-head .rule{flex:1;height:1px;background:var(--line);align-self:center}
+  p{margin:0 0 14px}
+
+  .diagram{width:100%;height:auto;border:1px solid var(--line-strong);background:rgba(227,216,186,.4);display:block}
+  .cap{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--ink-soft);text-transform:uppercase;margin-top:8px}
+
+  .bom-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:720px){.bom-grid{grid-template-columns:1fr}}
+  .panel{border:1.5px solid var(--ink);background:rgba(233,223,196,.5)}
+  .panel h3{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin:0;padding:10px 14px;border-bottom:1.5px solid var(--ink);background:var(--paper-3)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td{padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.n{font-family:var(--mono);color:var(--accent);width:34px;font-weight:700}
+  td.it{font-weight:600}
+  td.note{color:var(--ink-soft);font-size:12.5px}
+
+  .steps{list-style:none;margin:0;padding:0;counter-reset:step}
+  .step{position:relative;padding:0 0 34px 64px;counter-increment:step}
+  .step::before{
+    content:counter(step,decimal-leading-zero);
+    position:absolute;left:0;top:-4px;width:44px;height:44px;border-radius:50%;
+    border:1.5px solid var(--ink);background:var(--paper);
+    font-family:var(--disp);font-weight:600;font-size:19px;color:var(--ink);
+    display:flex;align-items:center;justify-content:center;z-index:2;
+  }
+  .step::after{content:"";position:absolute;left:22px;top:44px;bottom:6px;width:1px;border-left:1.5px dashed var(--line-strong)}
+  .step:last-child::after{display:none}
+  .step h3{font-family:var(--disp);font-weight:500;text-transform:uppercase;letter-spacing:.04em;font-size:19px;margin:2px 0 8px}
+  .step p{font-size:14.5px;color:var(--ink-2)}
+  .step .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase}
+  @media(max-width:560px){.step{padding-left:52px}.step::before{width:38px;height:38px;font-size:16px}.step::after{left:19px;top:38px}}
+
+  .plate{margin:16px 0 4px}
+  .plate-frame{
+    position:relative;border:1.5px dashed var(--line-strong);aspect-ratio:16/9;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:
+      linear-gradient(45deg,rgba(34,56,74,.05) 25%,transparent 25%,transparent 75%,rgba(34,56,74,.05) 75%) 0 0/16px 16px,
+      linear-gradient(45deg,rgba(34,56,74,.05) 25%,transparent 25%,transparent 75%,rgba(34,56,74,.05) 75%) 8px 8px/16px 16px,
+      rgba(227,216,186,.35);
+  }
+  .plate-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;background:var(--paper-2)}
+  .plate-frame .plate-draw{position:absolute;inset:0;width:100%;height:100%;z-index:1;display:block}
+  .plate-frame.has-img{aspect-ratio:auto;max-height:80vh;border-style:solid;background:var(--paper-2)}
+  .plate-frame.has-img img{position:relative;inset:auto;width:100%;height:auto;max-height:80vh;object-fit:contain}
+  .plate-frame.has-img .plate-draw{display:none}
+  .hero-plate{margin-top:30px}
+  .credits{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:6px}
+  .credit{border:1.5px solid var(--ink);background:rgba(233,223,196,.5);padding:14px 16px}
+  .credit .role{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);display:block}
+  .credit .who{font-family:var(--disp);font-size:19px;font-weight:500;text-transform:uppercase;letter-spacing:.02em;color:var(--ink);margin-top:5px;display:block}
+  @media(max-width:640px){.credits{grid-template-columns:1fr}}
+  .plate-ph{z-index:1;text-align:center;font-family:var(--mono);color:var(--ink-soft);font-size:12px;letter-spacing:.06em;padding:20px;line-height:1.7}
+  .plate-ph .cam{display:block;width:34px;height:34px;margin:0 auto 8px;opacity:.55}
+  .plate figcaption{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--ink-soft);text-transform:uppercase;margin-top:8px;display:flex;gap:10px}
+  .plate figcaption .fno{color:var(--accent);font-weight:700}
+
+  .note{border-left:3px solid var(--accent);background:rgba(233,223,196,.5);padding:12px 16px;margin:16px 0;font-size:14px}
+  .note b{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:4px}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:720px){.grid2{grid-template-columns:1fr}}
+
+  footer{margin-top:56px;border-top:1.5px solid var(--ink);padding-top:18px;font-family:var(--mono);font-size:12px;color:var(--ink-soft);letter-spacing:.04em}
+  footer a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-soft)}
+  footer a:hover{border-bottom-color:var(--accent)}
+  footer .row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .disc{margin-top:10px;font-size:11.5px;line-height:1.7;max-width:70ch}
+</style>
+
+<div class="sheet">
+  <span class="tick tl"></span><span class="tick tr"></span><span class="tick bl"></span><span class="tick br"></span>
+
+  <header>
+    <div class="eyebrow">
+      <svg class="wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M2 8.5a15 15 0 0 1 20 0"/><path d="M5 12a10.5 10.5 0 0 1 14 0"/><path d="M8 15.4a6 6 0 0 1 8 0"/><circle cx="12" cy="19" r="1.2" fill="currentColor" stroke="none"/>
+      </svg>
+      <span>Technical Modification Sheet</span>
+      <span class="rule"></span>
+      <span>DIY&nbsp;·&nbsp;RF Upgrade</span>
+    </div>
+
+    <h1>CP&nbsp;Plus V48A
+      <span class="thin">External Wi-Fi Antenna &amp; Range Modification</span>
+    </h1>
+
+    <p class="lede">A step-by-step teardown that adds an external <b>2.4&nbsp;GHz RP-SMA antenna</b> to the CP Plus V48A Wi-Fi CCTV camera — tapping the on-board antenna feed to noticeably extend wireless range. Drawn from a real, working mod.</p>
+  </header>
+
+  <figure class="plate hero-plate">
+    <div class="plate-frame">
+      <img src="images/hero-before-after.png" alt="The CP Plus V48A before and after the external 2.4 GHz antenna mod" loading="lazy" onload="this.closest('.plate-frame').classList.add('has-img')" onerror="this.closest('.hero-plate').style.display='none'">
+    </div>
+    <figcaption><span class="fno">Before → After</span><span>Stock camera vs. the same camera with the external 2.4&nbsp;GHz antenna</span></figcaption>
+  </figure>
+
+  <div class="titleblock">
+    <div class="tb"><div class="k">Project</div><div class="v">Wi-Fi Range Mod</div></div>
+    <div class="tb"><div class="k">Model</div><div class="v">CP Plus V48A</div></div>
+    <div class="tb"><div class="k">Band</div><div class="v">2.4 GHz</div></div>
+    <div class="tb"><div class="k">Difficulty</div><div class="v">Intermediate</div></div>
+    <div class="tb"><div class="k">Time</div><div class="v">~1–2 hrs</div></div>
+    <div class="tb"><div class="k">Rev</div><div class="v">A · 2026</div></div>
+  </div>
+
+  <div class="caution">
+    <span class="badge">Caution</span>
+    <ul>
+      <li><b>Unplug the camera first.</b> Never work on it while powered.</li>
+      <li>Opening the housing <b>voids the warranty</b> and can permanently damage the board.</li>
+      <li>Soldering involves a hot iron and fumes — work in a ventilated space and take care.</li>
+      <li>The Wi-Fi front-end is static-sensitive; work grounded (ESD-safe) where possible.</li>
+      <li>Only modify hardware you own. <b>You do this at your own risk.</b></li>
+    </ul>
+  </div>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">00</span><h2>How it works</h2><span class="rule"></span></div>
+    <p>The V48A radio feeds a small <b>on-board chip antenna</b> through a printed RF trace on the mainboard (marked with a Wi-Fi <span aria-hidden="true">📶</span> symbol). By scraping the solder mask off that feed trace and soldering a coax pigtail onto it — <b>centre core &rarr; feed</b>, <b>shield &rarr; ground</b> — we route the signal out to a panel-mounted <b>RP-SMA</b> jack and a proper external antenna. A higher-gain external antenna radiates far better than the tiny internal one, extending usable range.</p>
+
+    <svg class="diagram" viewBox="0 0 920 240" role="img" aria-label="Signal path from mainboard radio, through the tapped feed trace and coax, to an external antenna.">
+      <defs>
+        <marker id="arw" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6" fill="none" stroke="#22384a" stroke-width="1.2"/></marker>
+      </defs>
+      <g fill="none" stroke="#22384a" stroke-width="1.4" font-family="'Space Mono',monospace">
+        <rect x="26" y="52" width="270" height="150" stroke-dasharray="5 4"/>
+        <text x="34" y="44" font-size="11" fill="#22384a" stroke="none" letter-spacing="1.5">CAMERA MAINBOARD</text>
+        <rect x="56" y="92" width="96" height="58" fill="#e3d8ba"/>
+        <text x="104" y="116" font-size="10.5" fill="#22384a" stroke="none" text-anchor="middle">Wi-Fi</text>
+        <text x="104" y="132" font-size="10.5" fill="#22384a" stroke="none" text-anchor="middle">RADIO</text>
+        <path d="M152 121 H214 V150 H244"/>
+        <circle cx="244" cy="150" r="4.5" fill="#b5462c" stroke="none"/>
+        <text x="188" y="176" font-size="9.5" fill="#b5462c" stroke="none" text-anchor="middle">L-TRACE FEED</text>
+        <text x="300" y="128" font-size="9.5" fill="#22384a" stroke="none">CORE &#8594; FEED</text>
+        <text x="300" y="164" font-size="9.5" fill="#22384a" stroke="none">SHIELD &#8594; GND</text>
+        <path d="M244 150 C 300 150 300 121 340 121"/>
+        <path d="M244 150 V178 H300" stroke-dasharray="3 3"/>
+        <path d="M340 121 H612" marker-end="url(#arw)"/>
+        <path d="M340 128 H606" stroke-width="0.9" opacity=".5"/>
+        <text x="470" y="112" font-size="9.5" fill="#22384a" stroke="none" text-anchor="middle">COAX PIGTAIL · 50&#8486;</text>
+        <line x1="640" y1="40" x2="640" y2="200" stroke-dasharray="6 5"/>
+        <text x="648" y="196" font-size="9" fill="#22384a" stroke="none">HOUSING WALL</text>
+        <circle cx="640" cy="121" r="14"/>
+        <circle cx="640" cy="121" r="5" fill="#22384a" stroke="none"/>
+        <text x="640" y="66" font-size="9.5" fill="#22384a" stroke="none" text-anchor="middle">RP-SMA</text>
+        <path d="M654 121 H720"/>
+        <path d="M760 40 V150" stroke-width="2"/>
+        <path d="M720 121 H760"/>
+        <path d="M760 40 l 18 -14 M760 40 l -18 -14" stroke-width="1.2"/>
+        <text x="808" y="96" font-size="10" fill="#b5462c" stroke="none" text-anchor="middle">EXTERNAL</text>
+        <text x="808" y="110" font-size="10" fill="#b5462c" stroke="none" text-anchor="middle">2.4 GHz</text>
+        <path d="M786 46 a 26 26 0 0 1 0 44" stroke-dasharray="3 4" opacity=".7"/>
+        <path d="M796 38 a 40 40 0 0 1 0 60" stroke-dasharray="3 4" opacity=".5"/>
+      </g>
+    </svg>
+    <div class="cap">Fig. 00 — Signal path: radio &rarr; tapped feed &rarr; coax &rarr; RP-SMA bulkhead &rarr; external antenna</div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">01</span><h2>Bill of materials</h2><span class="rule"></span></div>
+    <div class="bom-grid">
+      <div class="panel">
+        <h3>Parts</h3>
+        <table>
+          <tr><td class="n">1</td><td class="it">2.4 GHz Wi-Fi antenna</td><td class="note">RP-SMA "rubber duck" type</td></tr>
+          <tr><td class="n">2</td><td class="it">RP-SMA bulkhead pigtail</td><td class="note">Panel-mount jack + short coax lead</td></tr>
+          <tr><td class="n">3</td><td class="it">Solder</td><td class="note">Thin rosin-core, 60/40 or similar</td></tr>
+          <tr><td class="n">4</td><td class="it">Heat-shrink / hot glue</td><td class="note">Optional — insulation &amp; strain relief</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Tools</h3>
+        <table>
+          <tr><td class="n">A</td><td class="it">Phillips screwdriver</td><td class="note">Small, for housing screws</td></tr>
+          <tr><td class="n">B</td><td class="it">Fine-tip soldering iron</td><td class="note">+ flux recommended</td></tr>
+          <tr><td class="n">C</td><td class="it">Sharp blade / scraper</td><td class="note">To remove the solder mask</td></tr>
+          <tr><td class="n">D</td><td class="it">Drill / rotary tool</td><td class="note">Small bit for the rear hole</td></tr>
+          <tr><td class="n">E</td><td class="it">Multimeter</td><td class="note">Optional — check for shorts</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">02</span><h2>Procedure</h2><span class="rule"></span></div>
+
+    <ol class="steps">
+      <li class="step">
+        <span class="tag">Teardown</span>
+        <h3>Power down &amp; open the housing</h3>
+        <p>Unplug the camera. Open it from the <b>front</b>: remove the front bezel / lens-ring screws and work your way in, backing out screws until the mainboard is exposed. Keep the screws in order so reassembly is painless.</p>
+        <figure class="plate">
+          <div class="plate-frame">
+            <img src="images/fig01-camera.png" alt="CP Plus V48A bullet camera with black stock antenna" loading="lazy" onload="this.closest('.plate-frame').classList.add('has-img')" onerror="this.style.display='none'">
+            <svg class="plate-draw" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Blueprint drawing of the CP Plus V48A bullet camera on its ball-joint mount with rear cable">
+             <g fill="none" stroke="#22384a" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" font-family="'Space Mono',ui-monospace,monospace">
+              <rect x="188" y="120" width="258" height="110" rx="34" fill="rgba(34,56,74,.03)"/>
+              <ellipse cx="446" cy="175" rx="13" ry="55" stroke-dasharray="3 3" opacity=".5"/>
+              <circle cx="188" cy="175" r="46"/><circle cx="188" cy="175" r="30"/>
+              <circle cx="188" cy="175" r="15" fill="rgba(34,56,74,.5)" stroke="none"/>
+              <path d="M256 165 l16 10 l-16 10 Z" fill="#22384a" stroke="none"/>
+              <path d="M274 165 l-16 10 l16 10 Z" fill="#b5462c" stroke="none"/>
+              <g stroke="none" font-family="'Oswald',sans-serif">
+                <text x="288" y="184" font-size="24" font-weight="700" fill="#b5462c" letter-spacing=".5">CP PLUS</text>
+                <text x="289" y="203" font-size="11" fill="#22384a" letter-spacing="2.5">V48A · Wi-Fi</text>
+              </g>
+              <circle cx="396" cy="120" r="7"/>
+              <line x1="396" y1="120" x2="444" y2="44" stroke-width="7"/>
+              <circle cx="444" cy="44" r="5" fill="#22384a" stroke="none"/>
+              <text x="456" y="58" stroke="none" fill="#22384a" font-size="9">STOCK ANTENNA</text>
+              <rect x="272" y="230" width="42" height="16" rx="3"/>
+              <line x1="292" y1="246" x2="342" y2="280" stroke-width="6"/>
+              <g stroke-width="1"><line x1="300" y1="253" x2="307" y2="249"/><line x1="312" y1="261" x2="319" y2="257"/><line x1="324" y1="269" x2="331" y2="265"/></g>
+              <circle cx="352" cy="288" r="16"/>
+              <ellipse cx="352" cy="302" rx="34" ry="9"/>
+              <line x1="318" y1="302" x2="318" y2="338"/><line x1="386" y1="302" x2="386" y2="338"/>
+              <ellipse cx="352" cy="338" rx="34" ry="10"/>
+              <text x="396" y="300" stroke="none" fill="#22384a" font-size="9.5">BALL-JOINT MOUNT</text>
+              <path d="M456 180 C 520 195 540 250 592 262" stroke-width="6"/>
+              <path d="M456 186 C 518 200 536 254 590 268" stroke-width="1" opacity=".4"/>
+              <text x="488" y="244" stroke="none" fill="#22384a" font-size="9.5">POWER / DATA</text>
+              <text x="60" y="42" stroke="none" fill="#22384a" font-size="10.5" letter-spacing="1.5">CP PLUS V48A · ASSEMBLED</text>
+             </g>
+           </svg>
+          </div>
+          <figcaption><span class="fno">Fig. 01</span><span>The CP Plus V48A, ready for teardown</span></figcaption>
+        </figure>
+      </li>
+
+      <li class="step">
+        <span class="tag">Locate</span>
+        <h3>Find the Wi-Fi antenna feed</h3>
+        <p>On the mainboard, look for the printed <b>Wi-Fi (📶) symbol</b> in the silkscreen. It sits next to the L-shaped copper feed trace that drives the on-board chip antenna — that trace is our tap point.</p>
+        <figure class="plate">
+          <div class="plate-frame">
+            <img src="images/fig02-mainboard-wifi.png" alt="Mainboard showing the printed Wi-Fi symbol and a data-matrix code" loading="lazy" onload="this.closest('.plate-frame').classList.add('has-img')" onerror="this.style.display='none'">
+            <svg class="plate-draw" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Blueprint drawing of the Wi-Fi board back side: rounded edge, data-matrix code, Wi-Fi symbol and the antenna feed">
+             <g fill="none" stroke="#22384a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" font-family="'Space Mono',ui-monospace,monospace">
+              <path d="M170 55 H565 V305 H170 A 165 165 0 0 1 170 55 Z" fill="rgba(34,56,74,.04)"/>
+              <circle cx="176" cy="98" r="10"/><circle cx="176" cy="262" r="10"/>
+              <rect x="205" y="120" width="70" height="70" fill="rgba(34,56,74,.02)"/>
+              <g fill="#22384a" stroke="none">
+                <rect x="211" y="126" width="10" height="10"/><rect x="231" y="126" width="10" height="10"/><rect x="251" y="126" width="10" height="10"/>
+                <rect x="211" y="146" width="10" height="10"/><rect x="241" y="146" width="10" height="10"/><rect x="261" y="146" width="10" height="10"/>
+                <rect x="221" y="156" width="10" height="10"/><rect x="211" y="166" width="10" height="10"/><rect x="231" y="166" width="10" height="10"/><rect x="251" y="166" width="10" height="10"/>
+              </g>
+              <text x="240" y="206" stroke="none" fill="#22384a" font-size="9" text-anchor="middle">CODE</text>
+              <g stroke="#22384a" stroke-width="3">
+                <path d="M195 250 a58 58 0 0 1 82 0"/><path d="M210 265 a37 37 0 0 1 52 0"/><path d="M225 280 a16 16 0 0 1 22 0"/>
+              </g>
+              <circle cx="236" cy="292" r="4.5" fill="#22384a" stroke="none"/>
+              <path d="M290 250 H320 V226" stroke="#b07d2a" stroke-width="6"/>
+              <circle cx="320" cy="226" r="5" fill="#b5462c" stroke="none"/>
+              <path d="M320 226 L380 205" stroke="#b5462c" stroke-dasharray="3 3" stroke-width="1.2"/>
+              <text x="386" y="203" stroke="none" fill="#b5462c" font-size="10.5">ANTENNA FEED</text>
+              <text x="386" y="218" stroke="none" fill="#22384a" font-size="8.5">L-trace · see Fig 03</text>
+              <rect x="430" y="95" width="46" height="40" rx="2" fill="rgba(34,56,74,.08)"/>
+              <text x="453" y="120" stroke="none" fill="#22384a" font-size="9" text-anchor="middle">2R2</text>
+              <rect x="500" y="150" width="40" height="30" rx="2"/>
+              <g stroke-width="1"><line x1="500" y1="158" x2="493" y2="158"/><line x1="500" y1="172" x2="493" y2="172"/><line x1="540" y1="158" x2="547" y2="158"/><line x1="540" y1="172" x2="547" y2="172"/></g>
+              <text x="520" y="169" stroke="none" fill="#22384a" font-size="7.5" text-anchor="middle">IC</text>
+              <rect x="430" y="200" width="24" height="12" fill="rgba(34,56,74,.15)"/><rect x="466" y="200" width="24" height="12" fill="rgba(34,56,74,.15)"/>
+              <rect x="500" y="210" width="30" height="20" rx="2" fill="rgba(34,56,74,.06)"/>
+              <text x="150" y="42" stroke="none" fill="#22384a" font-size="10.5" letter-spacing="1.5">Wi-Fi BOARD · BACK (ANTENNA SIDE)</text>
+             </g>
+           </svg>
+          </div>
+          <figcaption><span class="fno">Fig. 02</span><span>Wi-Fi symbol marks the feed trace</span></figcaption>
+        </figure>
+      </li>
+
+      <li class="step">
+        <span class="tag">Expose</span>
+        <h3>Scrape back the solder mask</h3>
+        <p>With a sharp blade, gently scrape the coating (solder mask) off the <b>L-shaped copper feed trace</b> until bright, clean copper shows. Scrape <i>lightly</i> — the goal is to expose the trace, not cut through it. Also expose a small patch of nearby ground.</p>
+      </li>
+
+      <li class="step">
+        <span class="tag">Prep</span>
+        <h3>Prepare the antenna pigtail</h3>
+        <p>Take the RP-SMA pigtail's coax and separate it into its two conductors: the inner <b>centre core</b> (signal) and the outer <b>shield / braid</b> (ground). Keep both leads as short as you can and tin them with a touch of solder.</p>
+      </li>
+
+      <li class="step">
+        <span class="tag">Solder</span>
+        <h3>Core → feed, shield → ground</h3>
+        <p>Solder the <b>centre core to the exposed L-trace feed</b>, and the <b>shield to ground</b>. Keep the leads short to preserve RF performance, and make sure the core and shield never touch — a bridge here shorts the antenna. A clean, quick joint is best.</p>
+        <figure class="plate">
+          <div class="plate-frame">
+            <img src="images/fig03-solder-feed.png" alt="Macro of the coax core soldered to the exposed L-shaped copper trace, shield to ground" loading="lazy" onload="this.closest('.plate-frame').classList.add('has-img')" onerror="this.style.display='none'">
+            <svg class="plate-draw" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Blueprint drawing of the solder joint: coax core soldered to the exposed L-trace in a scraped window, shield to ground">
+             <g fill="none" stroke="#22384a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" font-family="'Space Mono',ui-monospace,monospace">
+              <rect x="45" y="45" width="550" height="270" rx="8" fill="rgba(34,56,74,.04)"/>
+              <rect x="80" y="70" width="70" height="42" rx="2" fill="rgba(34,56,74,.06)"/>
+              <g stroke-width="1"><line x1="88" y1="112" x2="88" y2="118"/><line x1="104" y1="112" x2="104" y2="118"/><line x1="120" y1="112" x2="120" y2="118"/><line x1="136" y1="112" x2="136" y2="118"/></g>
+              <text x="115" y="95" stroke="none" fill="#22384a" font-size="8.5" text-anchor="middle">FT 24C02</text>
+              <rect x="430" y="70" width="76" height="46" rx="2" fill="rgba(34,56,74,.06)"/>
+              <g stroke-width="1"><line x1="440" y1="116" x2="440" y2="122"/><line x1="458" y1="116" x2="458" y2="122"/><line x1="476" y1="116" x2="476" y2="122"/><line x1="494" y1="116" x2="494" y2="122"/></g>
+              <text x="468" y="96" stroke="none" fill="#22384a" font-size="9" text-anchor="middle">AP1405</text>
+              <rect x="180" y="72" width="54" height="24" rx="3"/>
+              <text x="207" y="88" stroke="none" fill="#22384a" font-size="8" text-anchor="middle">XTAL</text>
+              <text x="268" y="96" stroke="none" fill="#22384a" font-size="11">24</text>
+              <rect x="180" y="150" width="240" height="90" rx="4" fill="rgba(120,128,54,.20)" stroke="#7a8236"/>
+              <circle cx="210" cy="200" r="10"/><circle cx="210" cy="200" r="4" fill="#b07d2a" stroke="none"/>
+              <path d="M230 205 H330 V168" stroke="#b07d2a" stroke-width="11"/>
+              <path d="M230 205 H330 V168" stroke="#22384a" stroke-width="0.7" opacity=".4"/>
+              <ellipse cx="330" cy="170" rx="14" ry="12" fill="#9aa1a8" stroke="#22384a"/>
+              <path d="M330 182 C 328 250 300 270 300 340" stroke-width="6"/>
+              <path d="M330 182 C 328 250 300 270 300 340" stroke="#e9dfc4" stroke-width="2"/>
+              <path d="M330 170 L432 150" stroke="#22384a" stroke-dasharray="3 3" stroke-width="1"/>
+              <text x="438" y="150" stroke="none" fill="#22384a" font-size="10">CORE -> copper L-trace</text>
+              <path d="M210 200 L150 175" stroke="#22384a" stroke-dasharray="3 3" stroke-width="1"/>
+              <text x="58" y="172" stroke="none" fill="#22384a" font-size="10">SHIELD -> GND via</text>
+              <text x="196" y="262" stroke="none" fill="#7a8236" font-size="9">solder-mask scraped (bare FR4 + copper)</text>
+              <text x="438" y="168" stroke="none" fill="#b5462c" font-size="9">(!) no bridge core/shield</text>
+              <text x="60" y="42" stroke="none" fill="#22384a" font-size="10.5" letter-spacing="1.5">SOLDER JOINT · L-TRACE FEED</text>
+             </g>
+           </svg>
+          </div>
+          <figcaption><span class="fno">Fig. 03</span><span>Core to feed trace · shield to ground</span></figcaption>
+        </figure>
+      </li>
+
+      <li class="step">
+        <span class="tag">Mount</span>
+        <h3>Fit the RP-SMA connector</h3>
+        <p>Drill a hole in the <b>back of the housing</b>, pass the RP-SMA jack through, and lock it in place with its nut and washer. Position it so the coax reaches the board without strain.</p>
+        <figure class="plate">
+          <div class="plate-frame">
+            <img src="images/fig04-rpsma-mounted.png" alt="RP-SMA connector mounted through the rear of the camera housing" loading="lazy" onload="this.closest('.plate-frame').classList.add('has-img')" onerror="this.style.display='none'">
+            <svg class="plate-draw" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Blueprint drawing of the RP-SMA connector mounted through the housing wall">
+             <g fill="none" stroke="#22384a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" font-family="'Space Mono',ui-monospace,monospace">
+              <path d="M170 40 C 120 130 120 230 170 320" stroke-width="2"/>
+              <path d="M182 44 C 134 130 134 230 182 316" stroke-width="1" opacity=".5"/>
+              <text x="118" y="200" stroke="none" fill="#22384a" font-size="10" transform="rotate(-90 118 200)" text-anchor="middle" letter-spacing="1">HOUSING (REAR)</text>
+              <path d="M186 150 L206 138 L226 138 L226 232 L206 232 L186 220 Z" fill="rgba(34,56,74,.08)"/>
+              <text x="206" y="255" stroke="none" fill="#22384a" font-size="9.5" text-anchor="middle">HEX NUT</text>
+              <rect x="226" y="150" width="150" height="60" rx="4" fill="rgba(176,125,42,.16)"/>
+              <g stroke="#b07d2a" stroke-width="1.4">
+                <line x1="240" y1="150" x2="248" y2="210"/><line x1="264" y1="150" x2="272" y2="210"/><line x1="288" y1="150" x2="296" y2="210"/>
+                <line x1="312" y1="150" x2="320" y2="210"/><line x1="336" y1="150" x2="344" y2="210"/><line x1="360" y1="150" x2="368" y2="210"/>
+              </g>
+              <ellipse cx="376" cy="180" rx="10" ry="30"/>
+              <circle cx="376" cy="180" r="7" fill="rgba(34,56,74,.14)"/>
+              <text x="300" y="124" stroke="none" fill="#b5462c" font-size="12" text-anchor="middle">RP-SMA JACK</text>
+              <line x1="300" y1="130" x2="300" y2="148" stroke="#b5462c" stroke-dasharray="3 3" stroke-width="1"/>
+              <path d="M186 185 C 130 200 110 250 130 300" stroke-width="6"/>
+              <text x="150" y="315" stroke="none" fill="#22384a" font-size="9.5">COAX TO BOARD</text>
+              <path d="M400 180 H455" stroke-dasharray="4 4" stroke-width="1.2"/>
+              <text x="462" y="184" stroke="none" fill="#22384a" font-size="10">antenna threads on</text>
+              <text x="60" y="42" stroke="none" fill="#22384a" font-size="10.5" letter-spacing="1.5">RP-SMA BULKHEAD MOUNT</text>
+             </g>
+           </svg>
+          </div>
+          <figcaption><span class="fno">Fig. 04</span><span>RP-SMA jack through the rear shell</span></figcaption>
+        </figure>
+      </li>
+
+      <li class="step">
+        <span class="tag">Test</span>
+        <h3>Test before you close it up</h3>
+        <p>Screw the external 2.4 GHz antenna onto the RP-SMA jack, power the camera, and connect it in the app. Confirm it links and streams — ideally check that signal strength / range has improved. <b>Always test before final assembly.</b></p>
+        <figure class="plate">
+          <div class="plate-frame">
+            <img src="images/fig05-board-lens.png" alt="Camera board with lens and the mod area during testing" loading="lazy" onload="this.closest('.plate-frame').classList.add('has-img')" onerror="this.style.display='none'">
+            <svg class="plate-draw" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Blueprint drawing of the round main camera board: offset lens, components, red and black leads, and the antenna tap point">
+             <g fill="none" stroke="#22384a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" font-family="'Space Mono',ui-monospace,monospace">
+              <circle cx="290" cy="180" r="150" fill="rgba(34,56,74,.03)"/>
+              <circle cx="290" cy="180" r="150" stroke-dasharray="2 7" stroke-width="1" opacity=".45"/>
+              <circle cx="410" cy="90" r="9"/><circle cx="405" cy="228" r="9"/><circle cx="185" cy="285" r="9"/>
+              <circle cx="235" cy="140" r="58"/><circle cx="235" cy="140" r="44"/>
+              <g stroke-width="1.1">
+                <line x1="235" y1="82" x2="235" y2="92"/><line x1="277" y1="98" x2="270" y2="105"/><line x1="293" y1="140" x2="283" y2="140"/>
+                <line x1="277" y1="182" x2="270" y2="175"/><line x1="235" y1="198" x2="235" y2="188"/><line x1="193" y1="182" x2="200" y2="175"/>
+              </g>
+              <circle cx="235" cy="140" r="27" fill="rgba(34,56,74,.18)"/>
+              <circle cx="235" cy="140" r="12" fill="rgba(34,56,74,.55)" stroke="none"/>
+              <text x="235" y="218" stroke="none" fill="#22384a" font-size="9.5" text-anchor="middle">LENS</text>
+              <path d="M200 96 C 150 70 120 90 70 62" stroke="#b5462c" stroke-width="2.4"/>
+              <path d="M206 104 C 156 80 126 100 72 74" stroke="#22384a" stroke-width="2.4"/>
+              <text x="60" y="52" stroke="none" fill="#22384a" font-size="9">RED / BLACK LEADS</text>
+              <rect x="360" y="120" width="74" height="38" rx="2" fill="rgba(34,56,74,.06)"/>
+              <g stroke-width="1.1"><line x1="368" y1="158" x2="368" y2="164"/><line x1="384" y1="158" x2="384" y2="164"/><line x1="400" y1="158" x2="400" y2="164"/><line x1="416" y1="158" x2="416" y2="164"/></g>
+              <text x="397" y="144" stroke="none" fill="#22384a" font-size="8.5" text-anchor="middle">PUYA</text>
+              <rect x="360" y="175" width="60" height="30" rx="2" fill="rgba(34,56,74,.06)"/>
+              <text x="390" y="194" stroke="none" fill="#22384a" font-size="8" text-anchor="middle">DRV</text>
+              <rect x="330" y="215" width="20" height="11" fill="rgba(34,56,74,.15)"/><rect x="358" y="215" width="20" height="11" fill="rgba(34,56,74,.15)"/>
+              <g fill="rgba(34,56,74,.5)" stroke="none"><rect x="360" y="240" width="8" height="8"/><rect x="372" y="240" width="8" height="8"/></g>
+              <text x="392" y="248" stroke="none" fill="#22384a" font-size="8">R G</text>
+              <text x="298" y="116" stroke="none" fill="#22384a" font-size="8">IR-CUT</text>
+              <circle cx="330" cy="98" r="6" fill="#b5462c" stroke="none"/>
+              <g stroke="#b5462c" stroke-width="1.1"><line x1="330" y1="86" x2="330" y2="80"/><line x1="343" y1="98" x2="350" y2="98"/></g>
+              <rect x="210" y="268" width="150" height="46" rx="4" stroke="#b07d2a" fill="rgba(176,125,42,.12)"/>
+              <path d="M232 300 H300 V282" stroke="#b07d2a" stroke-width="6"/>
+              <ellipse cx="300" cy="282" rx="11" ry="9" fill="#9aa1a8" stroke="#22384a"/>
+              <text x="216" y="284" stroke="none" fill="#b07d2a" font-size="8.5">ANTENNA TAP</text>
+              <path d="M300 291 V350" stroke-width="5"/>
+              <text x="312" y="342" stroke="none" fill="#22384a" font-size="9">to RP-SMA</text>
+              <text x="60" y="42" stroke="none" fill="#22384a" font-size="10.5" letter-spacing="1.5">MAIN BOARD · FRONT (LENS SIDE)</text>
+             </g>
+           </svg>
+          </div>
+          <figcaption><span class="fno">Fig. 05</span><span>Main board, lens side — antenna tap at the bottom edge</span></figcaption>
+        </figure>
+      </li>
+
+      <li class="step">
+        <span class="tag">Finish</span>
+        <h3>Reassemble — or troubleshoot</h3>
+        <p><b>If it works:</b> reassemble the housing, route and secure the coax, and add strain relief. <b>If it doesn't:</b> recheck for a solder bridge or short between core and shield, a cold joint, a cut or damaged trace, or wires pinched during disassembly. Fix, then retest.</p>
+      </li>
+    </ol>
+
+    <div class="grid2">
+      <div class="note"><b>Keep it short</b>At 2.4 GHz, stub length and impedance matter. The shorter the exposed leads and coax stub between the board and the connector, the better the signal.</div>
+      <div class="note"><b>Weatherproof it</b>The V48A is an outdoor camera. Seal the new rear hole and connector base with silicone / RTV so no water gets in.</div>
+    </div>
+    <div class="note"><b>Optional — cleaner RF path</b>The tap method here keeps the on-board chip antenna in circuit alongside the external one. For the best match, some people cut the trace to the internal antenna so only the external antenna feeds the radio. Only do this if you understand the RF path — it's easy to make things worse.</div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">03</span><h2>Thanks &amp; credits</h2><span class="rule"></span></div>
+    <p>This is a community how-to, shared so others can squeeze more Wi-Fi range out of the same camera. Big thanks to everyone whose work made it possible:</p>
+    <div class="credits">
+      <div class="credit"><span class="role">Mod &amp; documentation</span><span class="who">Zeycio</span></div>
+      <div class="credit"><span class="role">Illustrations</span><span class="who">ChatGPT · OpenAI</span></div>
+      <div class="credit"><span class="role">Website &amp; layout</span><span class="who">Claude · Anthropic</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="row">
+      <span>CP Plus V48A · Wi-Fi Range Mod · Sheet 01 of 01</span>
+      <span>Drawn by <a href="https://github.com/zeycio">Zeycio</a> · Rev A · 2026</span>
+    </div>
+    <p class="disc">Disclaimer: This is an unofficial, community documentation of a hardware modification. "CP Plus" and "V48A" are used only to identify the device and imply no affiliation or endorsement. Modifying your camera voids its warranty and may damage it or affect its weather sealing and RF compliance. Everything here is provided as-is, with no warranty — proceed at your own risk. Shared under the MIT License.</p>
+  </footer>
+</div>
